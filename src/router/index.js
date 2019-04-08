@@ -46,6 +46,12 @@ export const constantRouterMap = [
     meta: { title: 'Example', icon: 'example' },
     children: [
       {
+        path: 'project',
+        name: 'ProjectTable',
+        component: () => import('@/views/table/project'),
+        meta: { title: 'ProjectTable', icon: 'table' }
+      },
+      {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/table/index'),
@@ -73,7 +79,7 @@ export const constantRouterMap = [
     ]
   },
 
-  {
+  /*  {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
@@ -129,8 +135,9 @@ export const constantRouterMap = [
         meta: { title: 'menu2' }
       }
     ]
-  },
+  },*/
 
+  /*
   {
     path: 'external-link',
     component: Layout,
@@ -141,6 +148,7 @@ export const constantRouterMap = [
       }
     ]
   },
+*/
 
   { path: '*', redirect: '/404', hidden: true }
 ]
