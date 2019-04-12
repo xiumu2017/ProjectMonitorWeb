@@ -39,34 +39,34 @@ export const constantRouterMap = [
   },
 
   {
-    path: '/example',
+    path: '/transit',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/transit/table',
+    name: 'Transit',
+    meta: { title: 'Transit', icon: 'example' },
     children: [
       {
         path: 'project',
         name: 'ProjectTable',
         component: () => import('@/views/table/project'),
         meta: { title: 'ProjectTable', icon: 'table' }
-      },
+      }/*,
       {
         path: 'table',
         name: 'Table',
         component: () => import('@/views/table/index'),
         meta: { title: 'Table', icon: 'table' }
-      },
-      {
+      }*/
+      /*      {
         path: 'tree',
         name: 'Tree',
         component: () => import('@/views/tree/index'),
         meta: { title: 'Tree', icon: 'tree' }
-      }
+      }*/
     ]
   },
 
-  {
+  /*  {
     path: '/form',
     component: Layout,
     children: [
@@ -77,7 +77,7 @@ export const constantRouterMap = [
         meta: { title: 'Form', icon: 'form' }
       }
     ]
-  },
+  },*/
 
   /*  {
     path: '/nested',

@@ -15,6 +15,13 @@ export function getMasTypeList() {
   })
 }
 
+export function getProjectTypeList() {
+  return request({
+    url: '/project/projectTypeList',
+    method: 'get'
+  })
+}
+
 export function saveProject(params) {
   return request({
     url: '/project/saveProject',
@@ -58,6 +65,38 @@ export function getServer(params) {
 export function getDb(params) {
   return request({
     url: '/project/db',
+    method: 'get',
+    params
+  })
+}
+
+export function dbConnectTest(params) {
+  return request({
+    url: '/project/dbConnectTest',
+    method: 'get',
+    params
+  })
+}
+
+export function serverConnectTest(params) {
+  return request({
+    url: '/project/serverConnectTest',
+    method: 'get',
+    params
+  })
+}
+
+export function transitCheck(params) {
+  return request({
+    url: '/project/transitCheck',
+    method: 'get',
+    params
+  })
+}
+
+export function webLoginCheck(params) {
+  return request({
+    url: '/project/webLoginCheck',
     method: 'get',
     params
   })

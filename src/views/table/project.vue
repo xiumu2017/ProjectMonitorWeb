@@ -6,14 +6,19 @@
       <el-select v-model="listQuery.city" class="filter-item" placeholder="请选择城市" filterable clearable>
         <el-option v-for="item in cityArr" :key="item" :value="item" :label="item" />
       </el-select>
+      <el-select v-model="listQuery.type" class="filter-item" placeholder="请选择类别" filterable clearable>
+        <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name" />
+      </el-select>
       <el-input v-model="listQuery.name" placeholder="请输入项目名称" style="width: 200px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
     </div>
 
     <el-table
       v-loading="listLoading"
       :data="list"
+      style="margin-top: 20px"
       element-loading-text="Loading"
       border
       fit
@@ -23,17 +28,28 @@
           {{ scope.$index +1 }}
         </template>
       </el-table-column>
-      <el-table-column label="城市" width="100">
+      <el-table-column label="项目类型" width="100" prop="typeName">
+        <template slot-scope="scope">
+          {{ scope.row.typeName }}
+        </template>
+      </el-table-column>
+      <el-table-column label="城市" width="60">
         <template slot-scope="scope">
           {{ scope.row.city }}
         </template>
       </el-table-column>
-      <el-table-column label="项目名称" width="450">
+      <el-table-column label="项目名称" width="400">
         <template slot-scope="scope">
           {{ scope.row.name }}
+          <a :href="scope.row.url" class="el-icon-share" target="_blank" style="color: #409EFF">link</a>
         </template>
       </el-table-column>
-      <el-table-column label="是否启用" width="100" align="center">
+      <el-table-column label="重要性" width="100">
+        <template slot-scope="scope">
+          <el-rate v-model="scope.row.importance" :max="3" disabled/>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否启用" width="90" align="center">
         <template slot-scope="{row}">
           <el-switch
             v-model="row.enable"
@@ -44,38 +60,39 @@
             @change="changeEnable(row)"/>
         </template>
       </el-table-column>
-      <el-table-column label="Mas类型" width="200">
+      <el-table-column label="Mas类型" width="180" prop="masTypeName">
         <template slot-scope="scope">
-          {{ scope.row.masType }}
+          {{ scope.row.masTypeName }}
         </template>
       </el-table-column>
-      <el-table-column label="监控方式" width="100">
+      <el-table-column label="监控方式" width="80" prop="monitorType">
         <template slot-scope="scope">
           {{ scope.row.monitorType }}
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="100">
+      <el-table-column label="状态" width="150">
         <template slot-scope="scope">
           {{ scope.row.status }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="500">
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="success" size="mini" @click="handleServerEdit(row)">Server</el-button>
-          <el-button type="danger" size="mini" @click="handleDbEdit(row)">DB</el-button>
-          <el-button type="danger" size="mini" @click="handleDbEdit(row)">运行查看</el-button>
-          <el-button size="mini">客户信息</el-button>
+          <el-button type="primary" size="mini" @click="handleEdit(row)">项目信息</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!--  edit dialog  -->
-    <el-dialog :visible.sync="dialogFormVisible" title="项目信息维护">
-      <el-form ref="dataForm" :rules="rules" :model="projectData" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+    <el-dialog :visible.sync="dialogFormVisible" :close-on-click-modal="false" title="项目信息维护">
+      <el-form ref="dataForm" :rules="rules" :model="projectData" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;" size="medium">
         <el-form-item label="城市" prop="city">
           <el-select v-model="projectData.city" class="filter-item" placeholder="Please select" filterable clearable>
             <el-option v-for="item in cityArr" :key="item" :value="item" :label="item" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="项目类别" prop="type">
+          <el-select v-model="projectData.type" class="filter-item" placeholder="Please select" filterable clearable>
+            <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="项目名称" prop="name">
@@ -103,7 +120,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="优先级">
-          <el-rate v-model="projectData.level" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
+          <el-rate v-model="projectData.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="projectData.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
@@ -112,6 +129,11 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button type="primary" @click="submitEdit()">保存</el-button>
+        <el-button type="primary" @click="projectLoginTest">登录测试</el-button>
+        <el-button type="success" @click="handleServerEdit()">Server</el-button>
+        <el-button type="success" @click="handleDbEdit()">DB</el-button>
+        <el-button type="success" @click="handleTransitCheck()">运行查看</el-button>
+        <el-button>客户信息</el-button>
       </div>
     </el-dialog>
 
@@ -150,7 +172,7 @@
     <!-- db dialog -->
     <el-dialog :visible.sync="dbDialogVisible" title="数据库信息">
       <el-form ref="dbForm" :rules="rules" :model="dbFormData" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="IP" prop="ip">
+        <el-form-item label="IP">
           <el-input v-model="dbFormData.ip" />
         </el-form-item>
         <el-form-item label="PORT" prop="port">
@@ -179,15 +201,118 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dbDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="submitDbEdit()">保存</el-button>
-        <el-button type="primary" @click="submitEdit()">连接测试</el-button>
+        <el-button type="primary" @click="handleDbTest()">连接测试</el-button>
       </div>
+    </el-dialog>
+    <!-- 巡检结果form - dialog -->
+    <el-dialog :visible.sync="tcDialogVisible" :close-on-click-modal="false" title="Transit - Check - Result">
+      <el-col :span="24" style="font-size: medium">系统配置情况：</el-col>
+      <el-form ref="form1" :model="checkResultData" disabled size="mini" label-width="100px">
+        <el-col :span="8">
+          <el-form-item label="标题">
+            <el-input v-model="checkResultData.title" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="5">
+          <el-form-item label="是否开启发送">
+            <el-input v-model="checkResultData.sendAble" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="发送区间">
+            <el-tag>{{ checkResultData.startHour }}</el-tag>
+            <el-tag>{{ checkResultData.endHour }}</el-tag>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <el-form-item label="短信长度">
+            <el-input v-model="checkResultData.smslength" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="短信内容">
+            <el-input v-model="checkResultData.smsContent" type="textarea"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="sendtype">
+            <el-input v-model="checkResultData.sendtype" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="sendflag">
+            <el-input v-model="checkResultData.sendflag" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="月发送限额">
+            <el-input v-model="checkResultData.sendmonth" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="年发送限额">
+            <el-input v-model="checkResultData.sendyear" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="当日已发送量">
+            <el-input v-model="checkResultData.sendcount" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="当月已发送量">
+            <el-input v-model="checkResultData.sendTotalCount" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12"/>
+      </el-form>
+      <table>
+        <thead>
+          <tr>
+            <td rowspan="2">当日发送情况一览</td>
+          </tr>
+        </thead>
+        <tr>
+          <td>最近一次短信发送时间</td>
+          <td>{{ checkResultData.lastSendTime }}</td>
+        </tr>
+        <tr>
+          <td>最近一次号码推送时间</td>
+          <td>{{ checkResultData.lastPushTime }}</td>
+        </tr>
+        <tr>
+          <td>当天发送成功号码数量</td>
+          <td>{{ checkResultData.sendSuccessCount }}</td>
+        </tr>
+        <tr>
+          <td>当天发送失败号码数量</td>
+          <td>{{ checkResultData.sendFailCount }}</td>
+        </tr>
+        <tr>
+          <td>当天提交成功号码数量</td>
+          <td>{{ checkResultData.submitSuccessCount }}</td>
+        </tr>
+        <tr>
+          <td>当天提交失败号码数量</td>
+          <td>{{ checkResultData.submitFailCount }}</td>
+        </tr>
+        <tr>
+          <td>当天超出日发送量数量</td>
+          <td>{{ checkResultData.overDayCount }}</td>
+        </tr>
+        <tr>
+          <td>当天超出月发送量数量</td>
+          <td>{{ checkResultData.overMonthCount }}</td>
+        </tr>
+      </table>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { Message, MessageBox } from 'element-ui'
-import { getList, getMasTypeList, saveProject, changeEnable, saveDb, saveServer, getServer, getDb } from '@/api/project'
+import { Message } from 'element-ui'
+import { getList, getMasTypeList, saveProject, changeEnable, saveDb, saveServer, getServer,
+  getDb, dbConnectTest, serverConnectTest, transitCheck, getProjectTypeList, webLoginCheck } from '@/api/project'
 
 export default {
   filters: {
@@ -203,6 +328,7 @@ export default {
   data() {
     return {
       masTypeArr: [],
+      typeArr: [],
       cityArr: ['合肥', '宿州', '阜阳', '马鞍山', '宣城', '池州', '安庆', '六安', '滁州', '铜陵', '亳州', '淮南', '淮北', '黄山'],
       list: null,
       listLoading: true,
@@ -210,28 +336,50 @@ export default {
       dialogFormVisible: false,
       serverDialogVisible: false,
       dbDialogVisible: false,
+      tcDialogVisible: false,
       serverFormData: {},
       dbFormData: {},
       projectData: {},
-      currentId: null
+      checkResultData: {},
+      currentId: null,
+      currentRow: null,
+      loading: null
     }
   },
   created() {
-    this.fetchData()
     getMasTypeList().then(response => {
       this.masTypeArr = response.data
-      console.log(this.masTypeArr)
+      this.fetchData()
+    })
+    getProjectTypeList().then(res => {
+      this.typeArr = res.data
     })
   },
   methods: {
+    openLoading() {
+      this.loading = this.$loading({
+        lock: true,
+        text: 'Loading',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      })
+    },
+    closeLoading() {
+      this.loading.close()
+    },
     fetchData() {
       this.listLoading = true
       getList(this.listQuery).then(response => {
         this.list = response.data
         this.list.forEach(item => {
-          this.masTypeArr.forEach(type => {
-            if (type && type.code === item.masType) {
-              item.masType = type.name
+          this.masTypeArr.forEach(masType => {
+            if (masType && masType.code === item.masType) {
+              item.masTypeName = masType.name
+            }
+          })
+          this.typeArr.forEach(type => {
+            if (type && type.code === item.type) {
+              item.typeName = type.name
             }
           })
         })
@@ -239,25 +387,30 @@ export default {
       })
     },
     handleEdit(row) {
-      this.projectData = row
+      this.projectData = Object.assign({}, row)
+      this.currentRow = row
       this.dialogFormVisible = true
     },
-    handleServerEdit(row) {
-      this.currentId = row.id
+    handleServerEdit() {
+      this.serverFormData = {}
+      this.currentId = this.currentRow.id
       this.serverDialogVisible = true
-      if (row.serverId) {
-        getServer({ 'id': row.serverId }).then(res => {
+      if (this.currentRow.serverId) {
+        getServer({ 'id': this.currentRow.serverId }).then(res => {
           if (res.code === 200) {
-            this.serverFormData = res.data
+            if (res.data) {
+              this.serverFormData = res.data
+            }
           }
         })
       }
     },
-    handleDbEdit(row) {
-      this.currentId = row.id
+    handleDbEdit() {
+      this.dbFormData = {}
+      this.currentId = this.currentRow.id
       this.dbDialogVisible = true
-      if (row.dbId) {
-        getDb({ 'id': row.dbId }).then(res => {
+      if (this.currentRow.dbId) {
+        getDb({ 'id': this.currentRow.dbId }).then(res => {
           if (res.code === 200) {
             this.dbFormData = res.data
           }
@@ -265,10 +418,8 @@ export default {
       }
     },
     submitEdit() {
-      const param = Object.assign(this.projectData, {})
-      console.log(param)
+      const param = Object.assign({}, this.projectData, {})
       saveProject(param).then(response => {
-        console.log(response)
         if (response.code === 200) {
           this.fetchData()
           this.dialogFormVisible = false
@@ -277,16 +428,11 @@ export default {
             type: 'success',
             duration: 5 * 1000
           })
-        } else {
-          MessageBox({
-            message: response.msg,
-            type: 'error',
-            duration: 5 * 1000
-          })
         }
       })
     },
     handleAdd() {
+      this.projectData = {}
       this.dialogFormVisible = true
     },
     changeEnable(row) {
@@ -297,12 +443,6 @@ export default {
             message: res.msg,
             type: 'success',
             duration: 3 * 1000
-          })
-        } else {
-          Message({
-            message: res.msg,
-            type: 'error',
-            duration: 5 * 1000
           })
         }
       })
@@ -316,12 +456,6 @@ export default {
             message: res.msg,
             type: 'success',
             duration: 3 * 1000
-          })
-        } else {
-          Message({
-            message: res.msg,
-            type: 'error',
-            duration: 5 * 1000
           })
         }
       })
@@ -338,21 +472,61 @@ export default {
             type: 'success',
             duration: 3 * 1000
           })
-        } else {
-          Message({
-            message: res.msg,
-            type: 'error',
-            duration: 5 * 1000
-          })
         }
       })
     },
     serverTest() {
-      console.log('serverTest')
-      Message({
-        message: 'serverTest',
-        type: 'success',
-        duration: 3 * 1000
+      this.openLoading()
+      serverConnectTest(this.serverFormData).then(res => {
+        this.closeLoading()
+        if (res.code === 200) {
+          Message({
+            message: res.msg + res.data,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
+      })
+    },
+    handleDbTest() {
+      this.openLoading()
+      dbConnectTest(this.dbFormData).then(res => {
+        this.closeLoading()
+        if (res.code === 200) {
+          Message({
+            message: res.msg + res.data,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
+      })
+    },
+    handleTransitCheck() {
+      this.checkResultData = {}
+      this.openLoading()
+      this.tcDialogVisible = true
+      transitCheck({ 'id': this.currentRow.id }).then(res => {
+        this.closeLoading()
+        if (res.code === 200) {
+          const data = res.data
+          const config = Object.assign({}, data.config)
+          data.config = {}
+          this.checkResultData = Object.assign({}, config, data)
+          console.log(this.checkResultData)
+        }
+      })
+    },
+    projectLoginTest() {
+      this.openLoading()
+      webLoginCheck(this.projectData).then(res => {
+        this.closeLoading()
+        if (res.code === 200) {
+          Message({
+            message: res.msg,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
       })
     }
   }
