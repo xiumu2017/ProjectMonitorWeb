@@ -101,3 +101,11 @@ export function webLoginCheck(params) {
     params
   })
 }
+
+export function startCheck(params) {
+  return request({
+    url: '/project/startCheck',
+    method: 'get',
+    params
+  })
+}

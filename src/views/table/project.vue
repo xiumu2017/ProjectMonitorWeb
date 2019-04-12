@@ -13,6 +13,7 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="startCheck">手动巡检</el-button>
     </div>
 
     <el-table
@@ -130,8 +131,8 @@
         <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button type="primary" @click="submitEdit()">保存</el-button>
         <el-button type="primary" @click="projectLoginTest">登录测试</el-button>
-        <el-button type="success" @click="handleServerEdit()">Server</el-button>
-        <el-button type="success" @click="handleDbEdit()">DB</el-button>
+        <el-button type="success" @click="handleServerEdit">Server</el-button>
+        <el-button type="success" @click="handleDbEdit">DB</el-button>
         <el-button type="success" @click="handleTransitCheck()">运行查看</el-button>
         <el-button>客户信息</el-button>
       </div>
@@ -312,7 +313,7 @@
 <script>
 import { Message } from 'element-ui'
 import { getList, getMasTypeList, saveProject, changeEnable, saveDb, saveServer, getServer,
-  getDb, dbConnectTest, serverConnectTest, transitCheck, getProjectTypeList, webLoginCheck } from '@/api/project'
+  getDb, dbConnectTest, serverConnectTest, transitCheck, getProjectTypeList, webLoginCheck, startCheck } from '@/api/project'
 
 export default {
   filters: {
@@ -390,11 +391,13 @@ export default {
       this.projectData = Object.assign({}, row)
       this.currentRow = row
       this.dialogFormVisible = true
+      console.log(this.currentRow)
     },
     handleServerEdit() {
       this.serverFormData = {}
       this.currentId = this.currentRow.id
       this.serverDialogVisible = true
+      console.log(this.currentRow.serverId)
       if (this.currentRow.serverId) {
         getServer({ 'id': this.currentRow.serverId }).then(res => {
           if (res.code === 200) {
@@ -519,6 +522,19 @@ export default {
     projectLoginTest() {
       this.openLoading()
       webLoginCheck(this.projectData).then(res => {
+        this.closeLoading()
+        if (res.code === 200) {
+          Message({
+            message: res.msg,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
+      })
+    },
+    startCheck() {
+      this.openLoading()
+      startCheck({ 'token': 'paradise' }).then(res => {
         this.closeLoading()
         if (res.code === 200) {
           Message({
