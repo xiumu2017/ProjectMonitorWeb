@@ -1,5 +1,22 @@
 <template>
   <div class="app-container">
+
+    <!-- 查询区域 -->
+    <div class="filter-container">
+      <el-select v-model="listQuery.type" class="filter-item" placeholder="请选择类别" filterable clearable>
+        <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name" />
+      </el-select>
+      <el-select v-model="listQuery.city" class="filter-item" placeholder="请选择城市" filterable clearable>
+        <el-option v-for="item in cityArr" :key="item" :value="item" :label="item" />
+      </el-select>
+      <el-input v-model="listQuery.name" placeholder="请输入项目名称" style="width: 200px;" class="filter-item" />
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="startCheck">手动巡检</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="pushToDing">推送</el-button>
+    </div>
+
     <el-table
       v-loading="listLoading"
       :data="list"
@@ -43,7 +60,7 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
+import { getList } from '@/api/record'
 
 export default {
   filters: {

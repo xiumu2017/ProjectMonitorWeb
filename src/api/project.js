@@ -109,3 +109,27 @@ export function startCheck(params) {
     params
   })
 }
+
+export function deleteProject(params) {
+  return request({
+    url: '/project/delete',
+    method: 'get',
+    params
+  })
+}
+
+export function pushToDing(params) {
+  return request({
+    url: '/project/pushToDing',
+    method: 'get',
+    params
+  })
+}
+
+export function check(params) {
+  return request({
+    url: '/project/check',
+    method: 'get',
+    params
+  })
+}

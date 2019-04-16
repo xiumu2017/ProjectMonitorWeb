@@ -49,13 +49,13 @@ export const constantRouterMap = [
         path: 'project',
         name: '项目管理',
         component: () => import('@/views/table/project'),
-        meta: { title: 'ProjectTable', icon: 'table' }
+        meta: { title: '项目管理', icon: 'table' }
       },
       {
         path: 'record',
         name: '巡检记录',
         component: () => import('@/views/table/record'),
-        meta: { title: 'ProjectTable', icon: 'table' }
+        meta: { title: '巡检记录', icon: 'table' }
       }
       /*,
       {

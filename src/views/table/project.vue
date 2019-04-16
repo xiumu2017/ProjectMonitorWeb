@@ -3,17 +3,22 @@
 
     <!-- 查询区域 -->
     <div class="filter-container">
-      <el-select v-model="listQuery.city" class="filter-item" placeholder="请选择城市" filterable clearable>
-        <el-option v-for="item in cityArr" :key="item" :value="item" :label="item" />
-      </el-select>
       <el-select v-model="listQuery.type" class="filter-item" placeholder="请选择类别" filterable clearable>
         <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name" />
       </el-select>
+      <el-select v-model="listQuery.city" class="filter-item" placeholder="请选择城市" filterable clearable>
+        <el-option v-for="item in cityArr" :key="item" :value="item" :label="item" />
+      </el-select>
       <el-input v-model="listQuery.name" placeholder="请输入项目名称" style="width: 200px;" class="filter-item" />
+      <el-select v-model="listQuery.enable" class="filter-item" placeholder="启用/禁用" clearable>
+        <el-option key="1" value="1" label="启用" />
+        <el-option key="0" value="0" label="禁用" />
+      </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="startCheck">手动巡检</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" @click="startCheck">手动巡检</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" @click="pushToDing">推送</el-button>
     </div>
 
     <el-table
@@ -23,7 +28,9 @@
       element-loading-text="Loading"
       border
       fit
-      highlight-current-row>
+      highlight-current-row
+      @row-dblclick="handleEdit"
+      @row-contextmenu="deleteProject">
       <el-table-column align="center" label="序号" width="50">
         <template slot-scope="scope">
           {{ scope.$index +1 }}
@@ -76,11 +83,12 @@
           {{ scope.row.status }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <!--<el-table-column label="操作" align="center" width="200">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleEdit(row)">项目信息</el-button>
+          <el-button type="danger" size="mini" @click="deleteProject(row)">删除</el-button>
         </template>
-      </el-table-column>
+      </el-table-column>-->
     </el-table>
 
     <!--  edit dialog  -->
@@ -134,6 +142,7 @@
         <el-button type="success" @click="handleServerEdit">Server</el-button>
         <el-button type="success" @click="handleDbEdit">DB</el-button>
         <el-button type="success" @click="handleTransitCheck()">运行查看</el-button>
+        <el-button type="success" @click="handleCheck">巡检</el-button>
         <el-button>客户信息</el-button>
       </div>
     </el-dialog>
@@ -312,8 +321,8 @@
 
 <script>
 import { Message } from 'element-ui'
-import { getList, getMasTypeList, saveProject, changeEnable, saveDb, saveServer, getServer,
-  getDb, dbConnectTest, serverConnectTest, transitCheck, getProjectTypeList, webLoginCheck, startCheck } from '@/api/project'
+import { getList, getMasTypeList, saveProject, changeEnable, saveDb, saveServer, getServer, deleteProject, check,
+  getDb, dbConnectTest, serverConnectTest, transitCheck, getProjectTypeList, webLoginCheck, startCheck, pushToDing } from '@/api/project'
 
 export default {
   filters: {
@@ -387,17 +396,15 @@ export default {
         this.listLoading = false
       })
     },
-    handleEdit(row) {
+    handleEdit(row, event) {
       this.projectData = Object.assign({}, row)
       this.currentRow = row
       this.dialogFormVisible = true
-      console.log(this.currentRow)
     },
     handleServerEdit() {
       this.serverFormData = {}
       this.currentId = this.currentRow.id
       this.serverDialogVisible = true
-      console.log(this.currentRow.serverId)
       if (this.currentRow.serverId) {
         getServer({ 'id': this.currentRow.serverId }).then(res => {
           if (res.code === 200) {
@@ -439,7 +446,8 @@ export default {
       this.dialogFormVisible = true
     },
     changeEnable(row) {
-      changeEnable({ 'id': row.id, 'enable': row.enable }).then(res => {
+      const param = { 'id': row.id, 'enable': row.enable }
+      changeEnable(param).then(res => {
         if (res.code === 200) {
           this.fetchData()
           Message({
@@ -465,7 +473,6 @@ export default {
     },
     submitServerEdit() {
       const param = Object.assign({ 'projectId': this.currentId }, this.serverFormData)
-      console.log(param)
       saveServer(param).then(res => {
         if (res.code === 200) {
           this.serverDialogVisible = false
@@ -515,7 +522,6 @@ export default {
           const config = Object.assign({}, data.config)
           data.config = {}
           this.checkResultData = Object.assign({}, config, data)
-          console.log(this.checkResultData)
         }
       })
     },
@@ -538,6 +544,54 @@ export default {
         this.closeLoading()
         if (res.code === 200) {
           Message({
+            message: res.msg,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
+      })
+    },
+    deleteProject(row, c, e) {
+      event.preventDefault()
+      this.$confirm('是否确认删除', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.openLoading()
+        deleteProject({ 'id': row.id }).then(res => {
+          this.closeLoading()
+          if (res.code === 200) {
+            this.fetchData()
+            Message({
+              message: res.msg,
+              type: 'success',
+              duration: 3 * 1000
+            })
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    pushToDing() {
+      pushToDing().then(res => {
+        if (res.code === 200) {
+          this.$notify({
+            message: res.msg,
+            type: 'success',
+            duration: 3 * 1000
+          })
+        }
+      })
+    },
+    handleCheck() {
+      check(this.currentRow).then(res => {
+        if (res.code === 200) {
+          this.$notify({
             message: res.msg,
             type: 'success',
             duration: 3 * 1000
