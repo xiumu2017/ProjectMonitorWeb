@@ -14,11 +14,12 @@
         <el-option key="1" value="1" label="启用" />
         <el-option key="0" value="0" label="禁用" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="fetchData">查询</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" @click="startCheck">手动巡检</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" @click="pushToDing">推送</el-button>
+      <el-button class="filter-item" type="warning" size="mini" icon="el-icon-search" @click="handleHideNo">隐藏非巡检</el-button>
+      <el-button v-waves class="filter-item" type="primary" size="mini" icon="el-icon-search" @click="fetchData">查询</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" @click="startCheck">手动巡检</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" @click="pushToDing">推送</el-button>
     </div>
 
     <el-table
@@ -92,7 +93,7 @@
     </el-table>
 
     <!--  edit dialog  -->
-    <el-dialog :visible.sync="dialogFormVisible" :close-on-click-modal="false" title="项目信息维护">
+    <el-dialog :visible.sync="dialogFormVisible" :close-on-click-modal="false" title="项目信息维护" width="45%" top="8vh">
       <el-form ref="dataForm" :rules="rules" :model="projectData" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;" size="medium">
         <el-form-item label="城市" prop="city">
           <el-select v-model="projectData.city" class="filter-item" placeholder="Please select" filterable clearable>
@@ -126,6 +127,7 @@
             <el-option key="1" value="DB" label="数据库直连" />
             <el-option key="2" value="WEB" label="Web接口调用" />
             <el-option key="3" value="OTHER" label="其它" />
+            <el-option key="0" value="NO" label="不监控" />
           </el-select>
         </el-form-item>
         <el-form-item label="优先级">
@@ -135,15 +137,17 @@
           <el-input v-model="projectData.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitEdit()">保存</el-button>
-        <el-button type="primary" @click="projectLoginTest">登录测试</el-button>
-        <el-button type="success" @click="handleServerEdit">Server</el-button>
-        <el-button type="success" @click="handleDbEdit">DB</el-button>
-        <el-button type="success" @click="handleTransitCheck()">运行查看</el-button>
-        <el-button type="success" @click="handleCheck">巡检</el-button>
-        <el-button>客户信息</el-button>
+      <div class="dialog-footer" style="margin-left: 30px">
+        <el-button size="mini" type="primary" @click="submitEdit()">保存</el-button>
+        <el-button size="mini" @click="dialogFormVisible = false">取消</el-button>
+        <el-button size="mini" type="primary" @click="projectLoginTest">登录测试</el-button>
+        <el-button-group style="margin-left: 30px">
+          <el-button size="mini" type="success" @click="handleServerEdit">服务器信息</el-button>
+          <el-button size="mini" type="success" @click="handleDbEdit">数据库信息</el-button>
+          <el-button size="mini" type="danger" @click="handleTransitCheck()">调试查看</el-button>
+          <el-button size="mini" type="danger" @click="handleCheck">手动巡检</el-button>
+          <el-button size="mini" type="info" @click="$message({message:'1',type:'success'})">客户信息</el-button>
+        </el-button-group>
       </div>
     </el-dialog>
 
@@ -353,7 +357,8 @@ export default {
       checkResultData: {},
       currentId: null,
       currentRow: null,
-      loading: null
+      loading: null,
+      hiddenNoCheck: false
     }
   },
   created() {
@@ -376,6 +381,11 @@ export default {
     },
     closeLoading() {
       this.loading.close()
+    },
+    handleHideNo() {
+      this.hiddenNoCheck = !this.hiddenNoCheck
+      this.listQuery['hiddenNoCheck'] = this.hiddenNoCheck
+      this.fetchData()
     },
     fetchData() {
       this.listLoading = true
@@ -578,7 +588,9 @@ export default {
       })
     },
     pushToDing() {
+      this.openLoading()
       pushToDing().then(res => {
+        this.closeLoading()
         if (res.code === 200) {
           this.$notify({
             message: res.msg,
@@ -589,7 +601,9 @@ export default {
       })
     },
     handleCheck() {
+      this.openLoading()
       check(this.currentRow).then(res => {
+        this.closeLoading()
         if (res.code === 200) {
           this.$notify({
             message: res.msg,
