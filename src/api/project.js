@@ -133,3 +133,12 @@ export function check(params) {
     params
   })
 }
+
+export function excelExport(params) {
+  return request({
+    url: '/project/excelExport',
+    method: 'get',
+    responseType: 'blob',
+    params
+  })
+}

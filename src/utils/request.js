@@ -30,7 +30,25 @@ service.interceptors.response.use(
     /**
      * code为非20000是抛错 可结合自己业务进行修改
      */
-    // console.log(response)
+    // 文件下载处理，请在请求时使用 responseType：'blob' 参数
+    if (response['headers']['content-type'] === 'application/octet-stream') {
+      console.log('this is a file res！')
+      const blob = new Blob([response.data])
+      const fileName = '下载文件.xlsx'
+      if ('download' in document.createElement('a')) { // 非IE下载
+        const link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href) // 释放URL 对象
+        document.body.removeChild(link)
+      } else { // IE10+下载
+        navigator.msSaveBlob(blob, fileName)
+      }
+      return
+    }
 
     const res = response.data
     // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
