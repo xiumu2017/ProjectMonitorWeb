@@ -43,7 +43,7 @@
           {{ scope.row.typeName }}
         </template>
       </el-table-column>
-      <el-table-column label="城市" width="60">
+      <el-table-column label="城市" width="80">
         <template slot-scope="scope">
           {{ scope.row.city }}
         </template>
@@ -80,17 +80,11 @@
           {{ scope.row.monitorType }}
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="150">
+      <el-table-column label="状态" width="210">
         <template slot-scope="scope">
           {{ scope.row.status }}
         </template>
       </el-table-column>
-      <!--<el-table-column label="操作" align="center" width="200">
-        <template slot-scope="{row}">
-          <el-button type="primary" size="mini" @click="handleEdit(row)">项目信息</el-button>
-          <el-button type="danger" size="mini" @click="deleteProject(row)">删除</el-button>
-        </template>
-      </el-table-column>-->
     </el-table>
 
     <!--  edit dialog  -->
