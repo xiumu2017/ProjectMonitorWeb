@@ -235,7 +235,7 @@
     <el-dialog :visible.sync="dbDialogVisible" title="数据库信息"/>
     <!-- 巡检结果form - dialog -->
     <el-dialog :visible.sync="tcDialogVisible" :close-on-click-modal="false" title="Transit - Check - Result">
-      <el-col :span="24" style="font-size: medium">系统配置情况：</el-col>
+      <!--      <el-col :span="24" style="font-size: medium">系统配置情况：</el-col>-->
       <el-form ref="form1" :model="checkResultData" disabled size="mini" label-width="100px">
         <el-col :span="8">
           <el-form-item label="标题">
@@ -255,7 +255,7 @@
         </el-col>
         <el-col :span="4">
           <el-form-item label="短信长度">
-            <el-input v-model="checkResultData.smslength" />
+            <el-input v-model="checkResultData.smsLength" />
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -263,32 +263,32 @@
             <el-input v-model="checkResultData.smsContent" type="textarea"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="sendtype">
-            <el-input v-model="checkResultData.sendtype" />
+        <el-col :span="8">
+          <el-form-item label="sendType">
+            <el-input v-model="checkResultData.sendType" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="sendflag">
-            <el-input v-model="checkResultData.sendflag" />
+        <el-col :span="8">
+          <el-form-item label="sendFlag">
+            <el-input v-model="checkResultData.sendFlag" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item label="月发送限额">
-            <el-input v-model="checkResultData.sendmonth" />
+            <el-input v-model="checkResultData.sendMonth" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item label="年发送限额">
-            <el-input v-model="checkResultData.sendyear" />
+            <el-input v-model="checkResultData.sendYear" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item label="当日已发送量">
-            <el-input v-model="checkResultData.sendcount" />
+            <el-input v-model="checkResultData.sendCount" />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item label="当月已发送量">
             <el-input v-model="checkResultData.sendTotalCount" />
           </el-form-item>
@@ -564,14 +564,20 @@ export default {
     handleTransitCheck() {
       this.checkResultData = {}
       this.openLoading()
-      this.tcDialogVisible = true
       transitCheck({ 'id': this.currentRow.id }).then(res => {
         this.closeLoading()
+        this.tcDialogVisible = true
         if (res.code === 200) {
           const data = res.data
+          console.log('>>>-')
+          console.log(data)
           const config = Object.assign({}, data.config)
+          console.log('>>>--')
+          console.log(config)
           data.config = {}
           this.checkResultData = Object.assign({}, config, data)
+          console.log('>>>---')
+          console.log(this.checkResultData)
         }
       })
     },
