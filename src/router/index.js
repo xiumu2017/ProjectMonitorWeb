@@ -57,19 +57,24 @@ export const constantRouterMap = [
         component: () => import('@/views/table/record'),
         meta: { title: '巡检记录', icon: 'table' }
       }
-      /*,
+    ]
+  },
+  {
+    path: '/vote',
+    component: Layout,
+    redirect: '/transit/table',
+    meta: { title: 'Vote', icon: 'nested' },
+    children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      }*/
-      /*      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }*/
+        path: 'voteManger',
+        component: () => import('@/views/table/project'),
+        meta: { title: '投票管理', icon: 'table' }
+      },
+      {
+        path: 'voteView',
+        component: () => import('@/views/table/project'),
+        meta: { title: '投票统计', icon: 'table' }
+      }
     ]
   },
 
