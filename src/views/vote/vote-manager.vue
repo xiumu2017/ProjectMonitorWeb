@@ -4,12 +4,27 @@
     <!-- 查询区域 -->
     <div class="filter-container">
       <el-select v-model="listQuery.type" class="filter-item" placeholder="请选择类别" filterable clearable>
-        <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name" />
+        <el-option v-for="item in typeArr" :key="item.code" :value="item.code" :label="item.name"/>
       </el-select>
-      <el-input v-model="listQuery.topic" placeholder="请输入项目名称" style="width: 200px;" class="filter-item" />
-      <el-button v-waves class="filter-item" type="primary" size="mini" icon="el-icon-search" @click="fetchData">查询</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" icon="el-icon-edit" @click="handleAdd">添加</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" size="mini" type="primary" icon="el-icon-refresh" @click="listQuery = {}">重置</el-button>
+      <el-input v-model="listQuery.topic" placeholder="请输入项目名称" style="width: 200px;" class="filter-item"/>
+      <el-button v-waves class="filter-item" type="primary" size="mini" icon="el-icon-search" @click="fetchData">查询
+      </el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        size="mini"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleAdd">添加
+      </el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        size="mini"
+        type="primary"
+        icon="el-icon-refresh"
+        @click="listQuery = {}">重置
+      </el-button>
 
     </div>
 
@@ -46,7 +61,8 @@
       </el-table-column>
       <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
-          {{scope.row.status}}
+          {{ scope.row.status }}
+        </template>
       </el-table-column>
       <el-table-column label="投票开始时间" width="180" prop="startTime">
         <template slot-scope="scope">
@@ -64,7 +80,7 @@
 
 <script>
 import { Message } from 'element-ui'
-import { } from '@/api/vote'
+import {} from '@/api/vote'
 
 export default {
   data() {
@@ -79,7 +95,7 @@ export default {
     }
   },
   created() {
-    
+
   },
   methods: {
     openLoading() {
