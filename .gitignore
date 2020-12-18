@@ -13,3 +13,7 @@ package-lock.json
 *.ntvs*
 *.njsproj
 *.sln
+.vs/VSWorkspaceState.json
+.vs/slnx.sqlite
+yarn.lock
+.gitignore
